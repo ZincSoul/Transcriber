@@ -3,19 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Audio File</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <script>
-        function showLoading() {
-            document.getElementById("loading").style.display = "block";
-            document.getElementById("result").style.display = "none";
-        }
-
-        function hideLoading() {
-            document.getElementById("loading").style.display = "none";
-            document.getElementById("result").style.display = "block";
-        }
-    </script>
+    <title>NOTE NINJA</title>
+    <link rel="stylesheet" href="static/styles.css">
 </head>
 <body>
     <div class="header">
@@ -37,6 +26,16 @@
         <p id="summary"></p>
     </div>
     <script>
+        function showLoading() {
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("result").style.display = "none";
+        }
+
+        function hideLoading() {
+            document.getElementById("loading").style.display = "none";
+            document.getElementById("result").style.display = "block";
+        }
+
         async function handleFormSubmit(event) {
             event.preventDefault();
             showLoading();
