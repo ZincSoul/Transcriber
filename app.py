@@ -1,12 +1,10 @@
 import os
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, render_template
 from pydub import AudioSegment
 import speech_recognition as sr
 from transformers import pipeline
-from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
 
 def transcribe_audio(file_path):
     recognizer = sr.Recognizer()
@@ -28,21 +26,21 @@ def summarize_text(text):
 
 @app.route("/")
 def index():
-    return send_from_directory('.', 'index.html')
+    return render_template("index.html")
 
 @app.route("/upload", methods=["POST"])
 def upload():
     if "file" not in request.files:
-        return "No file part"
+        return jsonify({"error": "No file uploaded"}), 400
+    
     file = request.files["file"]
-    if file.filename == "":
-        return "No selected file"
-    if file:
-        file_path = os.path.join("uploads", file.filename)
-        file.save(file_path)
-        text = transcribe_audio(file_path)
-        summary = summarize_text(text)
-        return jsonify({"transcription": text, "summary": summary})
+    file_path = os.path.join("uploads", file.filename)
+    file.save(file_path)
+
+    transcript = transcribe_audio(file_path)
+    summary = summarize_text(transcript)
+
+    return jsonify({"transcript": transcript, "summary": summary})
 
 if __name__ == "__main__":
     os.makedirs("uploads", exist_ok=True)
