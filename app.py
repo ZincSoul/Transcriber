@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render
 from pydub import AudioSegment
 import speech_recognition as sr
 from transformers import pipeline
@@ -26,7 +26,7 @@ def summarize_text(text):
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render("index.html")
 
 @app.route("/upload", methods=["POST"])
 def upload():
