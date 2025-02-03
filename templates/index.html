@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Audio File</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script>
+        function showLoading() {
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("result").style.display = "none";
+        }
+
+        function hideLoading() {
+            document.getElementById("loading").style.display = "none";
+            document.getElementById("result").style.display = "block";
+        }
+    </script>
+</head>
+<body>
+    <div class="header">
+        <h1>NOTE NINJA</h1>
+        <p>Transcribe and Summarize Your Audio Files</p>
+    </div>
+    <h1>Upload Audio File</h1>
+    <form action="/upload" method="post" enctype="multipart/form-data" onsubmit="showLoading()">
+        <input type="file" name="file" accept="audio/*">
+        <button type="submit">Transcribe and Summarize</button>
+    </form>
+    <div id="loading">
+        <p>Loading...</p>
+    </div>
+    <div id="result">
+        <h2>Original Text:</h2>
+        <p id="original-text"></p>
+        <h2>Summary:</h2>
+        <p id="summary"></p>
+    </div>
+    <script>
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            showLoading();
+            const formData = new FormData(event.target);
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const result = await response.json();
+                document.getElementById("original-text").innerText = result.transcription;
+                document.getElementById("summary").innerText = result.summary;
+            } catch (error) {
+                document.getElementById("original-text").innerText = 'Error: ' + error.message;
+                document.getElementById("summary").innerText = '';
+            } finally {
+                hideLoading();
+            }
+        }
+
+        document.querySelector('form').addEventListener('submit', handleFormSubmit);
+    </script>
+</body>
+</html>
