@@ -4,62 +4,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NOTE NINJA</title>
-    <link rel="stylesheet" href="static/styles.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <div class="header">
-        <h1>NOTE NINJA</h1>
-        <p>Transcribe and Summarize Your Audio Files</p>
+    <div class="container">
+        <div class="header">
+            <h1>NOTE NINJA</h1>
+            <p class="lead">Your ultimate tool for meeting transcription and summarization</p>
+        </div>
+        <div class="upload-section">
+            <input type="file" id="fileInput" class="form-control">
+            <div class="form-check mt-3">
+                <input type="checkbox" class="form-check-input" id="noiseCancellation">
+                <label class="form-check-label" for="noiseCancellation">Enable Noise Cancellation</label>
+            </div>
+            <div class="form-group mt-3">
+                <label for="accuracy">Accuracy Level:</label>
+                <select class="form-control" id="accuracy">
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                </select>
+            </div>
+            <button onclick="uploadFile()" class="btn btn-primary mt-3">Upload</button>
+            <div id="status" class="status"></div>
+            <div class="spinner" id="spinner"></div>
+            <div id="transcript" class="transcript"></div>
+            <div id="summary" class="summary"></div>
+        </div>
     </div>
-    <h1>Upload Audio File</h1>
-    <form action="/upload" method="post" enctype="multipart/form-data" onsubmit="showLoading()">
-        <input type="file" name="file" accept="audio/*">
-        <button type="submit">Transcribe and Summarize</button>
-    </form>
-    <div id="loading">
-        <p>Loading...</p>
+    <div class="footer">
+        <p>&copy; 2025 NOTE NINJA. All rights reserved.</p>
     </div>
-    <div id="result">
-        <h2>Original Text:</h2>
-        <p id="original-text"></p>
-        <h2>Summary:</h2>
-        <p id="summary"></p>
+    <div class="credits">
+        <p>This website was created by Coders From KIIT University</p>
+        <p>Vaibhav Kachhwaha</p>
+        <p>Deeptanshu Hazra</p>
+        <p>Atharv Mandwal</p>
+        <p>Agradeep Das</p>
+    </div>
+    <div class="loading-container" id="loadingContainer">
+        <div class="half"></div>
+        <div class="half"></div>
     </div>
     <script>
-        function showLoading() {
-            document.getElementById("loading").style.display = "block";
-            document.getElementById("result").style.display = "none";
-        }
+        async function uploadFile() {
+            let fileInput = document.getElementById("fileInput");
+            let file = fileInput.files[0];
+            let formData = new FormData();
+            formData.append("file", file);
 
-        function hideLoading() {
-            document.getElementById("loading").style.display = "none";
-            document.getElementById("result").style.display = "block";
-        }
+            let noiseCancellation = document.getElementById("noiseCancellation").checked;
+            let accuracy = document.getElementById("accuracy").value;
+            formData.append("noiseCancellation", noiseCancellation);
+            formData.append("accuracy", accuracy);
 
-        async function handleFormSubmit(event) {
-            event.preventDefault();
-            showLoading();
-            const formData = new FormData(event.target);
-            try {
-                const response = await fetch('/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const result = await response.json();
-                document.getElementById("original-text").innerText = result.transcription;
-                document.getElementById("summary").innerText = result.summary;
-            } catch (error) {
-                document.getElementById("original-text").innerText = 'Error: ' + error.message;
-                document.getElementById("summary").innerText = '';
-            } finally {
-                hideLoading();
-            }
-        }
+            document.getElementById("status").innerText = "Transcribing...";
+            document.getElementById("spinner").style.display = "block";
+            document.getElementById("loadingContainer").style.display = "flex";
 
-        document.querySelector('form').addEventListener('submit', handleFormSubmit);
+            let response = await fetch("/upload", {
+                method: "POST",
+                body: formData
+            });
+
+            let result = await response.json();
+            document.getElementById("status").innerText = "Done!";
+            document.getElementById("spinner").style.display = "none";
+            document.getElementById("loadingContainer").style.display = "none";
+            document.getElementById("transcript").innerText = "Original Text:\n" + result.transcript;
+            document.getElementById("summary").innerText = "Summary:\n" + result.summary;
+        }
     </script>
 </body>
 </html>
